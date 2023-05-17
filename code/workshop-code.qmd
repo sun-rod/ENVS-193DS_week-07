@@ -77,3 +77,49 @@ turn off 2x2 grid:
 ```{r turning-off-the-grid, results = FALSE}
 dev.off()
 ```
+
+# putting things together to communicate
+
+## model predictions
+
+```{r pulling-out-predictions}
+predictions <- ggpredict(maples_model, terms = "stem_length")
+```
+
+plot predictions:
+```{r plotting-predictions}
+plot_predictions <- ggplot(data = maples_data, aes(x = stem_length, y = stem_dry_mass)) +
+  # first plot the underlying data
+  geom_point() +
+  geom_line(data = predictions, aes(x = x, y = predicted), color = "blue", linewidth = 1) +
+  # plot the confidence interval around model estimates
+  geom_ribbon(data = predictions, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), alpha = 0.2)
+
+plot_predictions
+```
+
+
+## create tables
+
+```{r model-summary-table}
+model_summary <- summary(maples_model)
+
+model_squares <- anova(maples_model)
+
+model_summary
+```
+
+# making a table
+
+```{r}
+model_squares_table <- tidy(model_squares) %>% 
+  mutate(p.value = case_when(
+    p.value < 0.001 ~ "<0.001"
+  )) %>% 
+  flextable() %>% 
+  set_header_labels(df = "Degrees of Freedom", 
+                    sumsq = "sum of squares")
+model_squares_table
+```
+
+
