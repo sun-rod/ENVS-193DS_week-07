@@ -1,0 +1,79 @@
+---
+title: "ENVS 193DS week 7 coding workshop"
+format: html
+execute: 
+  warning: false 
+  message: false 
+---
+
+```{r eval=FALSE}
+install.packages("performance")
+install.packages("broom")
+install.packages("flextable")
+install.packages("ggeffects")
+install.packages("car")
+
+```
+
+```{r libraries}
+library(tidyverse)
+library(here)
+library(lterdatasampler)
+library(naniar)
+```
+
+```{r}
+library(performance)
+library(broom)
+library(flextable)
+library(ggeffects)
+library(car)
+
+```
+
+# linear models
+
+how does the stem length *predict* stem dry mass
+
+```{r filtering-data}
+maples_data <- hbr_maples %>% 
+  filter(year == 2003 & watershed == "Reference")
+```
+
+Visualizing missing data
+
+```{r missing-data-vis}
+gg_miss_var(maples_data)
+```
+
+Create an exploratory data visualization:
+
+```{r explore-data-vis}
+ggplot(data = maples_data, aes(x = stem_length, y = stem_dry_mass)) + geom_point()
+```
+
+let's try a model
+
+```{r linear-model-maples}
+maples_model <- lm(stem_dry_mass ~ stem_length, data = maples_data)
+
+maples_model
+```
+
+Check assumptions
+
+1.  linear relationship between variables: yes (used the exploratory data visualization to check that)
+2.  independence of errors: yes (making that assumption based on how the data were collected)
+3.  homoskedasticity of errors: yes (making that decision from residuals vs. fitted plot/scale-location plots)
+4.  normally distributed errors: yes (looking at QQ plot of residuals)
+
+```{r checking-assumptions}
+par(mfrow = c(2, 2))
+plot(maples_model)
+```
+
+turn off 2x2 grid:
+
+```{r turning-off-the-grid, results = FALSE}
+dev.off()
+```
